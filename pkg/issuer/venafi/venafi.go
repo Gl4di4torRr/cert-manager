@@ -103,7 +103,7 @@ func configForIssuer(iss cmapi.GenericIssuer, secretsLister corelisters.SecretLi
 		password := tppSecret.Data[tppPasswordKey]
 
 		caBundle := ""
-		
+
 		var tppConfig = &vcert.Config{}
 		if tpp.insecure {
 			tppConfig = &vcert.Config{
@@ -118,6 +118,11 @@ func configForIssuer(iss cmapi.GenericIssuer, secretsLister corelisters.SecretLi
 				},
 			}
 		} else {
+
+			if len(tpp.CABundle) > 0 {
+				caBundle = string(tpp.CABundle)
+			}
+			
 			tppConfig = &vcert.Config{
 				ConnectorType: endpoint.ConnectorTypeTPP,
 				BaseUrl:       tpp.URL,
@@ -130,11 +135,6 @@ func configForIssuer(iss cmapi.GenericIssuer, secretsLister corelisters.SecretLi
 					Password: string(password),
 				},
 			}
-		}
-
-
-		if len(tpp.CABundle) > 0 {
-			caBundle = string(tpp.CABundle)
 		}
 
 		return tppConfig, nil
