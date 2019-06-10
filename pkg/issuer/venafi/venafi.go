@@ -103,22 +103,41 @@ func configForIssuer(iss cmapi.GenericIssuer, secretsLister corelisters.SecretLi
 		password := tppSecret.Data[tppPasswordKey]
 
 		caBundle := ""
+		
+		var tppConfig = &vcert.Config{}
+		if tpp.insecure {
+			tppConfig = &vcert.Config{
+				ConnectorType: endpoint.ConnectorTypeTPP,
+				BaseUrl:       tpp.URL,
+				Zone:          venCfg.Zone,
+				// always enable verbose logging for now
+				LogVerbose:      true,
+				Credentials: &endpoint.Authentication{
+					User:     string(username),
+					Password: string(password),
+				},
+			}
+		} else {
+			tppConfig = &vcert.Config{
+				ConnectorType: endpoint.ConnectorTypeTPP,
+				BaseUrl:       tpp.URL,
+				Zone:          venCfg.Zone,
+				// always enable verbose logging for now
+				LogVerbose:      true,
+				ConnectionTrust: caBundle,
+				Credentials: &endpoint.Authentication{
+					User:     string(username),
+					Password: string(password),
+				},
+			}
+		}
+
+
 		if len(tpp.CABundle) > 0 {
 			caBundle = string(tpp.CABundle)
 		}
 
-		return &vcert.Config{
-			ConnectorType: endpoint.ConnectorTypeTPP,
-			BaseUrl:       tpp.URL,
-			Zone:          venCfg.Zone,
-			// always enable verbose logging for now
-			LogVerbose:      true,
-			ConnectionTrust: caBundle,
-			Credentials: &endpoint.Authentication{
-				User:     string(username),
-				Password: string(password),
-			},
-		}, nil
+		return tppConfig, nil
 
 	case venCfg.Cloud != nil:
 		cloud := venCfg.Cloud

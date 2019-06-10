@@ -129,6 +129,10 @@ type VenafiTPP struct {
 	// system root certificates.
 	// +optional
 	CABundle []byte `json:"caBundle,omitempty"`
+
+	// Insecure is a way to bypass the secured connection between
+	// cert-manager and the Venafi TPP Instace
+	Insecure string `json:"insecure,omitempty"`
 }
 
 // VenafiCloud defines connection configuration details for Venafi Cloud
